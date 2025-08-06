@@ -18,9 +18,6 @@ public class BankService {
         this.accountService = accountService;
     }
 
-    /**
-     * ثبت کاربر جدید به همراه ساخت یک حساب پیش‌فرض با موجودی ۰
-     */
     public boolean registerNewUser(User user) {
         boolean created = userService.createUser(user);
         if (created) {
@@ -30,38 +27,23 @@ public class BankService {
         return false;
     }
 
-    /**
-     * دریافت حساب‌های یک کاربر بر اساس userId
-     */
     public List<Account> getUserAccounts(String userId) {
         return accountService.getUserAccounts(userId);
     }
 
-    /**
-     * دریافت اطلاعات یک کاربر بر اساس userId
-     */
     public User getUser(String userId) {
         return userService.getUser(userId);
     }
 
-    /**
-     * افزودن حساب جدید برای یک کاربر خاص
-     */
     public boolean addAccountToUser(String userId, Account account) {
-        account.setUserId(userId); // تضمین انتساب به کاربر صحیح
+        account.setUserId(userId);
         return accountService.createAccount(account.getId(), account.getBalance(), userId);
     }
 
-    /**
-     * دریافت اطلاعات حساب بر اساس accountId
-     */
     public Account getAccount(String accountId) {
         return accountService.getAccount(accountId);
     }
 
-    /**
-     * حذف حساب با توجه به شناسه حساب
-     */
     public boolean deleteAccount(String accountId) {
         return accountService.deleteAccount(accountId);
     }
