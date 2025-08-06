@@ -80,9 +80,11 @@ public class AccountService {
     }
 
     public List<Account> getUserAccounts(String userId) {
-    return repository.findAll().stream()
-            .filter(acc -> userId.equals(acc.getUserId()))
-            .collect(Collectors.toList());
+        List<Account> all = repository.findAll();
+        if (all == null) return new ArrayList<>();
+        return all.stream()
+                .filter(acc -> userId.equals(acc.getUserId()))
+                .collect(Collectors.toList());
     }
 
 
