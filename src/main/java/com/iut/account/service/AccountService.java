@@ -1,10 +1,13 @@
 package com.iut.account.service;
 
+
 import com.iut.Repository;
 import com.iut.account.model.Account;
 import com.iut.account.repo.AccountRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class AccountService {
 
