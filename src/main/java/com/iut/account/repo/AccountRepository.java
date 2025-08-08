@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.iut.Database;
-import com.iut.Repository;
 import com.iut.account.model.Account;
 
-public class AccountRepository implements Repository<Account, String> {
+public class AccountRepository implements AccountRepositoryInterface {
 
     private Connection connection;
 
@@ -120,6 +119,7 @@ public class AccountRepository implements Repository<Account, String> {
         }
     }
 
+    @Override
     public List<Account> findByUserId(String userId) {
         String selectSQL = "SELECT * FROM bank_account where user_id = ?";
         List<Account> accounts = new ArrayList<>();

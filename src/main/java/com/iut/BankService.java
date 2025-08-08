@@ -6,10 +6,8 @@ import com.iut.user.model.User;
 import com.iut.user.service.UserService;
 
 import java.util.List;
-import java.util.UUID;
 
 public class BankService {
-
     private final UserService userService;
     private final AccountService accountService;
 
@@ -18,17 +16,15 @@ public class BankService {
         this.accountService = accountService;
     }
 
-    public boolean registerNewUser(User user) {
-        boolean created = userService.createUser(user);
-        if (created) {
-            String defaultAccountId = UUID.randomUUID().toString();
-            return accountService.createAccount(defaultAccountId, 0, user.getId());
-        }
-        return false;
-    }
-
     public List<Account> getUserAccounts(String userId) {
         return accountService.getUserAccounts(userId);
+    }
+
+    public boolean registerNewUser(User user) {
+        if(userService.createUser(user)) {
+            return accountService.createAccount(user.getId(), 0, user.getId());
+        }
+        return false;
     }
 
     public User getUser(String userId) {
@@ -44,7 +40,8 @@ public class BankService {
         return accountService.getAccount(accountId);
     }
 
-    public boolean deleteAccount(String accountId) {
-        return accountService.deleteAccount(accountId);
+    public boolean deleteAccount(String id) {
+        return accountService.deleteAccount(id);
     }
+
 }

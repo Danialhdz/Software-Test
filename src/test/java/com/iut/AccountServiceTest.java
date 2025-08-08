@@ -1,18 +1,19 @@
 package com.iut;
 
-import com.iut.account.model.Account;
-import com.iut.account.service.AccountService;
-import com.iut.Repository;
+import com.iut.account.repo.AccountRepositoryInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import com.iut.account.model.Account;
+import com.iut.account.service.AccountService;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountServiceTest {
 
-    private Repository<Account, String> repository;
+    private AccountRepositoryInterface repository;
     
     private AccountService accountService;
 
@@ -24,99 +25,71 @@ public class AccountServiceTest {
 
     @Test
     void createAccountTest() {
-        boolean created = accountService.createAccount("acc1", 1000, "user1");
+        boolean created = accountService.createAccount("a1", 1000, "u1");
         assertTrue(created);
-        Account acc = repository.findById("acc1");
+
+        Account acc = repository.findById("a1");
         assertNotNull(acc);
         assertEquals(1000, acc.getBalance());
-        assertEquals("user1", acc.getUserId()); 
+        assertEquals("u1", acc.getUserId());
     }
 
     @Test
     void depositTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        accountService.deposit("acc1", 500);
-        Account acc = repository.findById("acc1");
-        assertEquals(1500, acc.getBalance());
+        accountService.createAccount("a2", 500, "u2");
+        boolean result = accountService.deposit("a2", 200);
+        assertTrue(result);
+
+        Account acc = repository.findById("a2");
+        assertEquals(700, acc.getBalance());
     }
 
     @Test
     void withdrawTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        accountService.withdraw("acc1", 400);
-        Account acc = repository.findById("acc1");
-        assertEquals(600, acc.getBalance());
+        accountService.createAccount("a3", 1000, "u3");
+        boolean result = accountService.withdraw("a3", 300);
+        assertTrue(result);
+
+        Account acc = repository.findById("a3");
+        assertEquals(700, acc.getBalance());
     }
 
     @Test
     void transferTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        accountService.createAccount("acc2", 200, "user2");
-        boolean result = accountService.transfer("acc1", "acc2", 300);
+        accountService.createAccount("a5", 1000, "u5");
+        accountService.createAccount("a6", 500, "u6");
+
+        boolean result = accountService.transfer("a5", "a6", 400);
         assertTrue(result);
-        assertEquals(700, repository.findById("acc1").getBalance());
-        assertEquals(500, repository.findById("acc2").getBalance());
+
+        assertEquals(600, accountService.getBalance("a5"));
+        assertEquals(900, accountService.getBalance("a6"));
     }
 
     @Test
     void getBalanceTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        int balance = accountService.getBalance("acc1");
-        assertEquals(1000, balance);
+        accountService.createAccount("a7", 1500, "u7");
+        int balance = accountService.getBalance("a7");
+        assertEquals(1500, balance);
     }
 
     @Test
     void existsAndGetAccountTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        assertTrue(repository.existsById("acc1"));
-        Account acc = accountService.getAccount("acc1");
+        accountService.createAccount("a8", 800, "u8");
+
+        assertTrue(repository.existsById("a8"));
+        Account acc = accountService.getAccount("a8");
         assertNotNull(acc);
+        assertEquals("u8", acc.getUserId());
     }
 
-    @Test 
+    @Test
     void getAllAccountsTest() {
-        accountService.createAccount("acc1", 1000, "user1");
-        accountService.createAccount("acc2", 500, "user2");
-        List<Account> all = repository.findAll();
-        assertEquals(2, all.size());
-    }
+        accountService.createAccount("a9", 100, "u9");
+        accountService.createAccount("a10", 200, "u9");
 
-    static class FakeAccountRepository implements Repository<Account, String> {
-        private final Map<String, Account> storage = new HashMap<>();
-
-        @Override
-        public boolean save(Account input) {
-            if (storage.containsKey(input.getId())) return false;
-            storage.put(input.getId(), input);
-            return true;
-        }
-
-        @Override
-        public boolean update(Account input) {
-            if (!storage.containsKey(input.getId())) return false;
-            storage.put(input.getId(), input);
-            return true;
-        }
-
-        @Override
-        public boolean delete(String id) {
-            return storage.remove(id) != null;
-        }
-
-        @Override
-        public boolean existsById(String id) {
-            return storage.containsKey(id);
-        }
-
-        @Override
-        public Account findById(String id) {
-            return storage.get(id);
-        }
-
-        @Override
-        public List<Account> findAll() {
-            return new ArrayList<>(storage.values());
-        }
+        List<Account> accounts = accountService.getUserAccounts("u9");
+        assertEquals(2, accounts.size());
     }
 
 }

@@ -1,17 +1,16 @@
 package com.iut.account.service;
 
-import com.iut.Repository;
-import com.iut.account.model.Account;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.iut.account.model.Account;
+import com.iut.account.repo.AccountRepositoryInterface;
+
+import java.util.List;
 
 public class AccountService {
 
-    private final Repository<Account, String> repository;
-    private final Map<String, Account> memoryStorage = new HashMap<>();
+    private final AccountRepositoryInterface repository;
 
-    public AccountService(Repository<Account, String> repository) {
+    public AccountService(AccountRepositoryInterface repository) {
         this.repository = repository;
     }
 
@@ -21,7 +20,6 @@ public class AccountService {
         }
         Account account = new Account(id, initialBalance);
         account.setUserId(userId);
-        memoryStorage.put(id, account);
         return repository.save(account);
     }
 
@@ -29,10 +27,9 @@ public class AccountService {
         if (repository.existsById(accountId)) {
             Account account = repository.findById(accountId);
             account.setBalance(account.getBalance() + amount);
-            memoryStorage.put(accountId, account);
             return repository.update(account);
         }
-        return false;
+        return false;   
     }
 
     public boolean withdraw(String accountId, int amount) {
@@ -42,10 +39,9 @@ public class AccountService {
                 throw new IllegalArgumentException("Insufficient funds");
             }
             account.setBalance(account.getBalance() - amount);
-            memoryStorage.put(accountId, account);
             return repository.update(account);
         }
-        return false;
+        return false;        
     }
 
     public boolean transfer(String fromId, String toId, int amount) {
@@ -57,8 +53,6 @@ public class AccountService {
             }
             from.setBalance(from.getBalance() - amount);
             to.setBalance(to.getBalance() + amount);
-            memoryStorage.put(fromId, from);
-            memoryStorage.put(toId, to);
             repository.update(from);
             repository.update(to);
             return true;
@@ -68,13 +62,13 @@ public class AccountService {
 
     public int getBalance(String id) {
         if (repository.existsById(id)) {
-            return repository.findById(id).getBalance();
+            Account account = repository.findById(id);
+            return account.getBalance();    
         }
-        throw new IllegalArgumentException("Account not found");
+        throw new IllegalArgumentException("User not found");
     }
 
     public boolean deleteAccount(final String id) {
-        memoryStorage.remove(id);
         return repository.delete(id);
     }
 
@@ -83,8 +77,8 @@ public class AccountService {
     }
 
     public List<Account> getUserAccounts(String userId) {
-        return memoryStorage.values().stream()
-                .filter(acc -> userId.equals(acc.getUserId()))
-                .collect(Collectors.toList());
+        return repository.findByUserId(userId);
     }
+
+
 }
